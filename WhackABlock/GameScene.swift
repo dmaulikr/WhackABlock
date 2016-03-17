@@ -33,6 +33,7 @@ class GameScene: SKScene {
         SKAction.waitForDuration(1.0)
         randomSquareColor()
         countDownTimer()
+        squareSpawnTimer()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -59,21 +60,21 @@ class GameScene: SKScene {
 extension GameScene {
     
     func spawnMainLabel() -> UILabel {
-    mainLabel = UILabel(frame: CGRect(x: 0, y: 0, width: view!.frame.width, height: view!.frame.height * 0.4))
-    if let mainLabel = mainLabel {
-        let mainLabelString = "Choose the GREEN Square"
-        let stringToColor = "GREEN"
-        let range = (mainLabelString as NSString).rangeOfString(stringToColor)
-        let attributedString = NSMutableAttributedString(string: mainLabelString)
-        attributedString.addAttribute(NSForegroundColorAttributeName, value: greenColor, range: range)
-        mainLabel.textColor = offWhiteColor
-        mainLabel.font = UIFont(name: "Futura", size: CGRectGetWidth(frame) * 0.14)
-        mainLabel.textAlignment = .Center
-        mainLabel.numberOfLines = 0
-        mainLabel.text = "\(mainLabelString)"
-        view!.addSubview(mainLabel)
-    }
-    return mainLabel
+        mainLabel = UILabel(frame: CGRect(x: 0, y: 0, width: view!.frame.width, height: view!.frame.height * 0.4))
+        if let mainLabel = mainLabel {
+            let mainLabelString = "Choose the GREEN Square"
+            let stringToColor = "GREEN"
+            let range = (mainLabelString as NSString).rangeOfString(stringToColor)
+            let attributedString = NSMutableAttributedString(string: mainLabelString)
+            attributedString.addAttribute(NSForegroundColorAttributeName, value: greenColor, range: range)
+            mainLabel.textColor = offWhiteColor
+            mainLabel.font = UIFont(name: "Futura", size: CGRectGetWidth(frame) * 0.14)
+            mainLabel.textAlignment = .Center
+            mainLabel.numberOfLines = 0
+            mainLabel.text = "\(mainLabelString)"
+            view!.addSubview(mainLabel)
+        }
+        return mainLabel
     }
     
     func spawnScoreLabel() -> SKLabelNode {
@@ -90,11 +91,10 @@ extension GameScene {
     }
     
     func spawnSquares() {
-        
-        squares[0] = createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) - offset, y: CGRectGetMidY(frame) + offset))
-        squares[1] = createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) + offset, y: CGRectGetMidY(frame) + offset))
-        squares[2] = createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) - offset, y: CGRectGetMidY(frame) - offset))
-        squares[3] = createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) + offset, y: CGRectGetMidY(frame) - offset))
+        squares.append(createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) - offset, y: CGRectGetMidY(frame) + offset)))
+        squares.append(createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) + offset, y: CGRectGetMidY(frame) + offset)))
+        squares.append(createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) - offset, y: CGRectGetMidY(frame) - offset)))
+        squares.append(createSquare(redColor, size: squareSize, position: CGPoint(x: CGRectGetMidX(frame) + offset, y: CGRectGetMidY(frame) - offset)))
     }
 
     
@@ -145,7 +145,7 @@ extension GameScene {
         return square
     }
     
-        func addToScore() {
+    func addToScore() {
         score++
         scoreLabel.text = "Score: \(score)"
     }
@@ -164,20 +164,18 @@ extension GameScene {
             }
         }
         runAction(SKAction.sequence([wait, transition]))
-        
     }
     
     
     func randomSquareColor() {
         let colorSelector = Int(arc4random_uniform(4))
         let wait = SKAction.waitForDuration(0.7)
-        let pause = SKAction.waitForDuration(0.3)
+        let pause = SKAction.waitForDuration(0.5)
         let changeColorGreen = SKAction.runBlock {
             self.squares[colorSelector].color = self.greenColor
         }
         let changeColorRed = SKAction.runBlock {
             self.squares[colorSelector].color = self.redColor
-
         }
         let sequence = SKAction.sequence([wait, changeColorGreen, pause, changeColorRed])
         runAction(sequence)
