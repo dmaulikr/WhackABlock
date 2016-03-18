@@ -21,7 +21,9 @@ class GameScene: SKScene {
     
     var score = 0
     var timer = 32
-    
+    var waitTimer = 0.8
+    var pauseTimer = 0.7
+    var isAlive = true
     var squareSize = 120
     var offset: CGFloat = 70
     
@@ -30,10 +32,9 @@ class GameScene: SKScene {
         mainLabel = spawnMainLabel()
         scoreLabel = spawnScoreLabel()
         spawnSquares()
-        SKAction.waitForDuration(1.0)
-        randomSquareColor()
         countDownTimer()
         squareSpawnTimer()
+        increaseSpeed()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -105,12 +106,15 @@ extension GameScene {
 extension GameScene {
     
     func squareSpawnTimer() {
-        let wait = SKAction.waitForDuration(1.0)
-        let spawn = SKAction.runBlock {
-            self.randomSquareColor()
+        if isAlive {
+            let sequenceTimer = waitTimer + pauseTimer
+            let wait = SKAction.waitForDuration(sequenceTimer)
+            let spawn = SKAction.runBlock {
+                self.randomSquareColor()
+            }
+            let sequence = SKAction.sequence([wait, spawn])
+            runAction(SKAction.repeatActionForever(sequence))
         }
-        let sequence = SKAction.sequence([wait, spawn])
-        runAction(SKAction.repeatActionForever(sequence))
     }
     
     func countDownTimer() {
@@ -151,6 +155,7 @@ extension GameScene {
     }
     
     func gameOver() {
+        isAlive = false
         timer = 0
         scoreLabel.removeFromParent()
         mainLabel.text = "Game Over"
@@ -169,8 +174,8 @@ extension GameScene {
     
     func randomSquareColor() {
         let colorSelector = Int(arc4random_uniform(4))
-        let wait = SKAction.waitForDuration(0.7)
-        let pause = SKAction.waitForDuration(0.5)
+        let wait = SKAction.waitForDuration(waitTimer)
+        let pause = SKAction.waitForDuration(pauseTimer)
         let changeColorGreen = SKAction.runBlock {
             self.squares[colorSelector].color = self.greenColor
         }
@@ -180,6 +185,18 @@ extension GameScene {
         let sequence = SKAction.sequence([wait, changeColorGreen, pause, changeColorRed])
         runAction(sequence)
     }
+    
+    func increaseSpeed() {
+        let wait = SKAction.waitForDuration(5.0)
+        let speedUp = SKAction.runBlock {
+            self.waitTimer = self.waitTimer - 0.1
+            self.pauseTimer = self.pauseTimer - 0.1
+        }
+        let sequence = SKAction.sequence([wait, speedUp])
+        runAction(SKAction.repeatActionForever(sequence))
+    }
+    
+    
 }
 
 
